@@ -1,0 +1,10 @@
+anno 
+giorno 
+volta
+tempo 
+ora 
+momento
+notte 
+sera 
+mese
+periodo
