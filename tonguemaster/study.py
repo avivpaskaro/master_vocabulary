@@ -31,7 +31,13 @@ class Study(threading.Thread):
         return [self.dictionary[i] for i in rand_lst]
 
     def run(self):
+        """
+        Run infinite loop to get from use the proper number of words to study.
+        after use has chosen quantity, he will study them one by one.
+        lastly he will be testing on them.
 
+        :return: none
+        """
         while True:
             words_quantity = input(f'\n{{Study}} Welcome to study session!\n' +
                                    '{{Study}} Please choose how many words do you want to study:\n' +
