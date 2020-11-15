@@ -25,7 +25,7 @@ class DownloadMP3(threading.Thread):
 
     def run(self):
         """
-        downloading to mp3 vocal of a given words  in a given language
+        downloading to mp3 vocal of a given words in a given language
 
         :return: none (store values in queue)
         """

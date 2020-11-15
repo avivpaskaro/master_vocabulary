@@ -1,5 +1,4 @@
 import threading
-import time
 import random
 # Constants
 ADD = '1'
@@ -28,9 +27,9 @@ class Test(threading.Thread):
         :param right_answer: the right answer
         :return: shuffle list with the right answer
         """
-        answers_without_right_answer = [x for x in answers_lst if x not in right_answer]
-        rand_answers_lst = random.sample(range(0, len(answers_without_right_answer)), 3)  # 3 is optional
-        answers = [answers_without_right_answer[i] for i in rand_answers_lst]
+        answers_lst.remove(right_answer)
+        rand_sample = random.sample(range(len(answers_lst)), 3)  # 3 is optional
+        answers = [answers_lst[i] for i in rand_sample]
         answers.append(right_answer)
         random.shuffle(answers)
         return answers
@@ -42,8 +41,21 @@ class Test(threading.Thread):
 
         :return: none
         """
+        words = [x[0] for x in self.words_lst]
         translations = [x[1] for x in self.words_lst]
-        for word_tuple in self.words_lst:
-            answers = self.rand_answers(word_tuple[1], translations)
-            print(f'{word_tuple[0]} - answers: {answers}')
-            time.sleep(5)
+        for i in range(len(words)):
+            print(f'\n{words[i]}:')
+            answers = self.rand_answers(translations[i], list(set(translations.copy())))
+            for j in range(len(answers)):
+                print(f'{j+1}. {answers[j]}')
+            while True:
+                user_choice = input('your answer: ')
+                if not user_choice or int(user_choice) not in range(1, 5):
+                    print('you chose not valid answer')
+                    continue
+                else:
+                    break
+            if answers[int(user_choice)-1] == translations[i]:
+                print('you were right!')
+            else:
+                print('you were wrong!')
