@@ -29,7 +29,8 @@ class Test(threading.Thread):
         :param right_answer: the right answer
         :return: shuffle list with the right answer
         """
-        answers_lst.remove(right_answer)
+        if right_answer in answers_lst:
+            answers_lst.remove(right_answer)
         rand_sample = random.sample(range(len(answers_lst)), 3)  # 3 is optional
         answers = [answers_lst[i] for i in rand_sample]
         answers.append(right_answer)

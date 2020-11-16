@@ -64,7 +64,7 @@ class MyDB:
                             VALUES (?,?);"""
         self.cursor.execute(sql_insert, entry)
         self.conn.commit()
-        if self.verbose >= Verbosity.HIGH:
+        if self.verbose >= Verbosity.LOW:
             print(f'entry added/replaced: {entry}')
         return self.cursor.lastrowid
 
@@ -174,7 +174,7 @@ def main():
         myDB.update_word('words', ['EZ_factor', 'next_date', 'priority'], ['dst_language'], [3.2, '2020-11-15', 3, 'Eldld'])
         res = myDB.get_words('words', 5, ['src_language', 'dst_language', 'EZ_factor'])
         print(res)
-        res = myDB.get_rand_values('words', ['src_language'], 3)
+        res = myDB.get_rand_values('words', 3, ['src_language'] )
         print(res)
 
         myDB.clean_table('words')

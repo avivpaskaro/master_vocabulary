@@ -140,7 +140,7 @@ class AddWord(threading.Thread):
             for t in threads:  # wait for threads to finish
                 t.join()
             while not self.RESULTS_QUEUE.empty():  # insert results to dictionary
-                ServerIf.insert(self.server, self.RESULTS_QUEUE.get())
+                ServerIf.insert(self.server, [self.RESULTS_QUEUE.get()])
             it += 1
 
         # mp3 vocals download threads

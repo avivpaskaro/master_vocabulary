@@ -1,5 +1,4 @@
 import queue
-import random
 import threading
 
 from tonguemaster.DB import MyDB
@@ -21,7 +20,7 @@ class Server(threading.Thread):
     def run(self):
         if self.db is None:
             self.db = MyDB(self.db_file, 'words')
-        self.db.clean_table('words')
+        # self.db.clean_table('words')
         while not self.stop_request.isSet():
             try:
                 (job_id, job_type, table, job_params) = self.dir_q.get(True, 0.05)

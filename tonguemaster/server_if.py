@@ -30,19 +30,19 @@ class ServerIf:
     def are_exist(self, word_list):
         """
 
-        :param word_list: words in dst-lan
+        :param word_list: words in src-lan
         :return: list of all non-exists words
         """
         exists = []
         for word in word_list:
-            self.__send_job(0, 'word_exists', 'words', ['dst_language', word])
+            self.__send_job(0, 'word_exists', 'words', ['src_language', word])
             exists.append(self.__get_resp())
         return [word_list[i] for i in range(len(word_list)) if exists[i] is False]
 
     def insert(self, pairs_list):
         """
 
-        :param pairs_list: every pair (tuple) is (word in src-lan, word in dst-lan)
+        :param pairs_list: every pair (tuple) is (word in src-lan, word in dst-lan) e.g. [(a,a),(b,b)]
         :return: void
         """
         for pair in pairs_list:
@@ -57,7 +57,7 @@ class ServerIf:
         today = date.today()
         for word in word_list:
             update_col = ['EZ_factor', 'next_date']
-            rules_col = ['dst_language']
+            rules_col = ['src_language']
             params = [word[1], str(today + timedelta(days=word[2])), word[0]]
             self.__send_job(0, 'update_word', 'words', [update_col, rules_col, params])
 
@@ -74,9 +74,9 @@ class ServerIf:
         """
 
         :param amount: number of requested dummy words
-        :return: list of words in src-lan
+        :return: list of words in dst-lan
         """
-        self.__send_job(0, 'get_rand', 'words', [amount, ['src_language']])
+        self.__send_job(0, 'get_rand', 'words', [amount, ['dst_language']])
         return [word[0] for word in self.__get_resp()]
 
     def __send_job(self, job_id, job_type, table, params):

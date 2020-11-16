@@ -49,13 +49,13 @@ class Study(threading.Thread):
         # study session
         words_lst = ServerIf.fetch_words(self.server, words_quantity)
         for words_tuple in words_lst:
-            (words, answer) = words_tuple
+            (words, answer, _) = words_tuple
             print(f'{words}')
             time.sleep(0.1)
             print(f'{answer}\n')
             time.sleep(0.1)
 
         # invoke test thread
-        t = Test(words_lst)
+        t = Test(words_lst, self.server)
         t.start()
         t.join()
