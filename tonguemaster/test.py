@@ -1,4 +1,5 @@
 import threading
+from tonguemaster.server_if import ServerIf
 import random
 # Constants
 ADD = '1'
@@ -6,7 +7,7 @@ MENU = '2'
 
 
 class Test(threading.Thread):
-    def __init__(self, words_lst):
+    def __init__(self, words_lst, server):
         """
         Class constructor
 
@@ -14,6 +15,7 @@ class Test(threading.Thread):
         """
         threading.Thread.__init__(self)
         self.words_lst = words_lst
+        self.server = server
         print('\nWelcome to test session!')
 
     @staticmethod
@@ -41,11 +43,12 @@ class Test(threading.Thread):
 
         :return: none
         """
+        dummy_answers = ServerIf.fetch_dummy(self.server, 50)
         words = [x[0] for x in self.words_lst]
         translations = [x[1] for x in self.words_lst]
         for i in range(len(words)):
             print(f'\n{words[i]}:')
-            answers = self.rand_answers(translations[i], list(set(translations.copy())))
+            answers = self.rand_answers(translations[i], list(set(dummy_answers.copy())))
             for j in range(len(answers)):
                 print(f'{j+1}. {answers[j]}')
             while True:

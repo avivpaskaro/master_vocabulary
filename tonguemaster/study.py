@@ -1,6 +1,6 @@
-import threading
 import time
-import random
+
+from tonguemaster.server_if import ServerIf
 from tonguemaster.test import *
 
 
@@ -10,7 +10,7 @@ class Study(threading.Thread):
     TEN = '2'
     FIFTEEN = '3'
 
-    def __init__(self, dictionary):
+    def __init__(self, dictionary, server):
         """
         Class constructor
 
@@ -18,17 +18,7 @@ class Study(threading.Thread):
         """
         threading.Thread.__init__(self)
         self.dictionary = dictionary
-
-    def fetch_words(self, quantity):
-        """
-        randomizing words from dictionary and fetch them
-
-        :param quantity: how many words to fetch
-        :return: list of fetched words
-        """
-        dict_len = len(self.dictionary)
-        rand_lst = random.sample(range(0, dict_len), quantity)
-        return [self.dictionary[i] for i in rand_lst]
+        self.server = server
 
     def run(self):
         """
@@ -57,11 +47,12 @@ class Study(threading.Thread):
                 print('Chose wrong, try again!')
 
         # study session
-        words_lst = self.fetch_words(words_quantity)
-        for word_tuple in words_lst:
-            print(f'{word_tuple[0]}')
+        words_lst = ServerIf.fetch_words(self.server, words_quantity)
+        for words_tuple in words_lst:
+            (words, answer) = words_tuple
+            print(f'{words}')
             time.sleep(0.1)
-            print(f'{word_tuple[1]}\n')
+            print(f'{answer}\n')
             time.sleep(0.1)
 
         # invoke test thread

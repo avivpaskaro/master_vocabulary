@@ -4,6 +4,7 @@ import os
 from googletrans import Translator
 from gtts import gTTS
 import threading
+from tonguemaster.server_if import ServerIf
 
 
 class DownloadMP3(threading.Thread):
@@ -66,7 +67,7 @@ class Translate(threading.Thread):
         translator = Translator()
         try:
             translation = translator.translate(self.word, src=self.src_lng, dest=self.dst_lng).text
-            self.translate_q.put([self.word, translation])
+            self.translate_q.put((self.word, translation))
         except Exception as exp:
             pass
 
@@ -77,7 +78,7 @@ class AddWord(threading.Thread):
     MENU = '2'
     RESULTS_QUEUE = Queue()
 
-    def __init__(self, dictionary, event):
+    def __init__(self, dictionary, event, server):
         """
         Class constructor
 
@@ -89,6 +90,7 @@ class AddWord(threading.Thread):
         self.name = 'Add Word'
         self.dictionary = dictionary
         self.event = event
+        self.server = server
         self.daemon = True
         print(f'\n{{{self.name}}} Welcome to add word!')
 
@@ -106,28 +108,6 @@ class AddWord(threading.Thread):
             line_lst = f.read().splitlines()
         line_lst = list(map(lambda x: x.strip(), line_lst))
         return list(filter(None, line_lst))
-
-    def are_exist(self, words_lst):
-        """
-        Checks if words are exist within the dictionary.
-
-        :param words_lst: list of new words to insert the dictionary
-        :return: matches - the words that exist
-                 mismatches - the words that aren't exist
-        """
-        orig_words = [x[0] for x in self.dictionary]  # the most left column is the original words
-        matches = [x for x in words_lst if x in orig_words]
-        mismatches = [x for x in words_lst if x not in orig_words]
-        return matches, mismatches
-
-    def insert(self, words_lst):
-        """
-        Insert new words content lines into dictionary.
-
-        :param words_lst: list of new word content
-        :return: none
-        """
-        self.dictionary.append(words_lst)
 
     def run(self):
         """
@@ -147,7 +127,7 @@ class AddWord(threading.Thread):
         it = 0
         new_words = []
         while True:  # Until succeed
-            _, mismatches = self.are_exist(words_lst)  # the words that are still not in dictionary
+            mismatches = ServerIf.are_exist(self.server, words_lst)  # the words that are still not in dictionary
             if it == 0:
                 new_words = mismatches  # save the first iteration mismatch list to future use in mp3 threads
             if not mismatches:
@@ -160,7 +140,7 @@ class AddWord(threading.Thread):
             for t in threads:  # wait for threads to finish
                 t.join()
             while not self.RESULTS_QUEUE.empty():  # insert results to dictionary
-                self.insert(self.RESULTS_QUEUE.get())
+                ServerIf.insert(self.server, self.RESULTS_QUEUE.get())
             it += 1
 
         # mp3 vocals download threads
