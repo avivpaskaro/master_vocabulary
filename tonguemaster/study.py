@@ -1,6 +1,4 @@
 import time
-
-from tonguemaster.server_if import ServerIf
 from tonguemaster.test import *
 
 
@@ -51,9 +49,10 @@ class Study(threading.Thread):
         for words_tuple in words_lst:
             (words, answer, _) = words_tuple
             print(f'{words}')
-            time.sleep(0.1)
-            print(f'{answer}\n')
-            time.sleep(0.1)
+            time.sleep(1.5)
+            print(f'{answer}')
+            time.sleep(1)
+            input('\nPress Enter for next word\n')
 
         # invoke test thread
         t = Test(words_lst, self.server)
