@@ -1,5 +1,4 @@
 import sqlite3
-import random
 from datetime import date
 from sqlite3 import Error
 from enum import IntEnum
@@ -40,7 +39,9 @@ class MyDB:
                                             dst_language text,
                                             EZ_factor real DEFAULT 2.5,
                                             next_date text,
-                                            priority integer DEFAULT 2
+                                            priority integer DEFAULT 2,
+                                            interval integer DEFAULT 0,
+                                            repetitions integer DEFAULT 1
                                         ); """
         try:
             self.cursor.execute(sql_create_projects_table)
@@ -73,7 +74,7 @@ class MyDB:
         self.cursor.execute(sql_select)
         # self.conn.commit()
         rows = self.cursor.fetchall()
-        if self.verbose >= Verbosity.HIGH:
+        if self.verbose >= Verbosity.LOW:
             print(f'the rows of table {table} are:')
             for row in rows:
                 print(row)
@@ -122,9 +123,9 @@ class MyDB:
         sql_update = f""" UPDATE {table} SET {cols_str} WHERE {conds_str};"""
         self.cursor.execute(sql_update, params)
         self.conn.commit()
-        if self.verbose >= Verbosity.HIGH:
-            # print(f'in table {table} in entry {cond}={params[1]} the col {col} was updated to {params[0]}')
-            if self.verbose >= Verbosity.HIGH:
+        if self.verbose >= Verbosity.LOW:
+            # print(f'in table {table} in entry {cond}={params[3]} the col {col} was updated to {params[0]}')
+            if self.verbose >= Verbosity.LOW:
                 self.get_entries(table)
 
     def get_words(self, table, amount, cols):
@@ -133,7 +134,7 @@ class MyDB:
         sql_get = f""" SELECT {cols_str} FROM {table} WHERE next_date BETWEEN '1970-01-01' AND '{curr_date}' 
                        ORDER BY next_date DESC, priority DESC LIMIT ?"""
         self.cursor.execute(sql_get, [amount])
-        # self.conn.commit()
+        self.conn.commit()
         rows = self.cursor.fetchall()
         if len(rows) < amount:
             sql_get = f""" SELECT {cols_str} FROM {table} WHERE next_date IS NULL  
@@ -149,38 +150,3 @@ class MyDB:
             for row in rows:
                 print(row)
         return rows
-
-
-def main():
-    myDB = MyDB(r'C:\Users\eldad\Documents\proj\pythonProject\server_p\DB_dir\pythonsqlite.db', 'words')
-    try:
-        myDB.insert_word('words', ['neldad', 'Eldad'])
-        myDB.insert_word('words', ['neload', 'Epdad'])
-        myDB.insert_word('words', ['neljad', 'Elkad'])
-        myDB.insert_word('words', ['nelmad', 'Eldvd'])
-        myDB.insert_word('words', ['nelcad', 'Eldaq'])
-        myDB.insert_word('words', ['qeldad', 'Eldtd'])
-        myDB.insert_word('words', ['nelqad', 'Eldld'])
-        myDB.insert_word('words', ['geldad', 'Elhad'])
-        myDB.get_entries('words')
-        res = myDB.word_exists('words', 'src_language', ['neldad'])
-        print(res)
-        res = myDB.word_exists('words', 'src_language', ['Eldad'])
-        print(res)
-        res = myDB.word_exists('words', 'dst_language', ['neldad'])
-        print(res)
-        res = myDB.word_exists('words', 'dst_language', ['Eldad'])
-        print(res)
-        myDB.update_word('words', ['EZ_factor', 'next_date', 'priority'], ['dst_language'], [3.2, '2020-11-15', 3, 'Eldld'])
-        res = myDB.get_words('words', 5, ['src_language', 'dst_language', 'EZ_factor'])
-        print(res)
-        res = myDB.get_rand_values('words', 3, ['src_language'] )
-        print(res)
-
-        myDB.clean_table('words')
-    finally:
-        myDB.close()
-
-
-if __name__ == '__main__':
-    main()

@@ -50,7 +50,7 @@ def main():
             t.start()
             t.join()
         elif next_action == DICT:
-            print(np.array(server_if.fetch_words(100)))
+            print(np.array(server_if.fetch_entries()))
         elif next_action == EXIT:
             print('{Menu} Bye!')
             server_if.stop_servers()

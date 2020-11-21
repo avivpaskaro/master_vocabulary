@@ -24,44 +24,50 @@ class Server(threading.Thread):
         while not self.stop_request.isSet():
             try:
                 (job_id, job_type, table, job_params) = self.dir_q.get(True, 0.05)
-                if job_type is 'insert_word':
+                if job_type == 'insert_word':
                     '''
                     job_params = [src_lan (str), dst_lan (str)]
                     '''
                     self.db.insert_word(table, job_params)
-                elif job_type is 'create_table':
+                elif job_type == 'create_table':
                     '''
                     job_params = []
                     '''
                     self.db.create_table(table)
-                elif job_type is 'word_exists':
+                elif job_type == 'word_exists':
                     '''
                     job_params = [field, value]
                     return: boolean
                     '''
                     res = self.db.word_exists(table, job_params[0], [job_params[1]])
                     self.result_q.put((self.name, job_id, job_type, res))
-                elif job_type is 'update_word':
+                elif job_type == 'update_word':
                     '''
                     job_params = [[columns to update], [rules columns], [new values]]
                     '''
                     self.db.update_word(table, job_params[0], job_params[1], job_params[2])
-                elif job_type is 'get_words':
+                elif job_type == 'get_words':
                     '''
                     job_params = [amount (int), [fields]]
                     '''
                     res = self.db.get_words(table, job_params[0], job_params[1])
                     self.result_q.put((self.name, job_id, job_type, res))
-                elif job_type is 'clean_table':
+                elif job_type == 'clean_table':
                     '''
                     job_params = []
                     '''
                     self.db.clean_table(table)
-                elif job_type is 'get_rand':
+                elif job_type == 'get_rand':
                     '''
                     job_params = [amount (int), [fields]]
                     '''
                     res = self.db.get_words(table, job_params[0], job_params[1])
+                    self.result_q.put((self.name, job_id, job_type, res))
+                elif job_type == 'get_entries':
+                    '''
+                    job_params = null
+                    '''
+                    res = self.db.get_entries(table)
                     self.result_q.put((self.name, job_id, job_type, res))
                 else:
                     res = "Error"
@@ -75,4 +81,3 @@ class Server(threading.Thread):
     def join(self, timeout=None):
         self.stop_request.set()
         super(Server, self).join(timeout)
-

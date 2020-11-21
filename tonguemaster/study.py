@@ -1,4 +1,3 @@
-import time
 from tonguemaster.test import *
 
 
@@ -47,7 +46,7 @@ class Study(threading.Thread):
         # study session
         words_lst = ServerIf.fetch_words(self.server, words_quantity)
         for words_tuple in words_lst:
-            (words, answer, _) = words_tuple
+            (words, answer, _, _, _) = words_tuple
             print(f'{words}')
             time.sleep(1.5)
             print(f'{answer}')

@@ -16,7 +16,7 @@ class ServerIf:
         self.result_q = queue.Queue()
         self.server_num = server_num
         self.pool = \
-            [Server(dir_q=self.query_q, result_q=self.result_q, db_file=path.join(db_paths[i], 'tonguemaster.db')) \
+            [Server(dir_q=self.query_q, result_q=self.result_q, db_file=path.join(db_paths[i], 'tonguemaster.db'))
              for i in range(server_num)]
 
     def start_servers(self):
@@ -51,23 +51,34 @@ class ServerIf:
     def update_words(self, word_list):
         """
 
-        :param word_list: every tuple contain: (word in dst-lan, EZ factor, delta days (number not date))
+        :param word_list: every tuple contain: (word in src-lan, EZ factor, interval (days), repetitions)
         :return: void
         """
         today = date.today()
         for word in word_list:
-            update_col = ['EZ_factor', 'next_date']
+            update_col = ['EZ_factor', 'next_date', 'interval', 'repetitions']
             rules_col = ['src_language']
-            params = [word[1], str(today + timedelta(days=word[2])), word[0]]
+            params = [word[1], str(today + timedelta(days=word[2])), word[2], word[3], word[0]]
             self.__send_job(0, 'update_word', 'words', [update_col, rules_col, params])
+
+    def fetch_entries(self):
+        """
+
+        :param: null
+        :return: list of all dictionary tuples
+        """
+        self.__send_job(0, 'get_entries', 'words', None)
+        return self.__get_resp()
 
     def fetch_words(self, amount):
         """
 
         :param amount: number of requested words
-        :return: list of tuples when every tuple contain: (word in src-lan, word in dst-lan, EZ factor)
+        :return: list of tuples when every tuple contain: (word in src-lan, word in dst-lan, EZ factor,
+                                                          interval (days), repetitions)
         """
-        self.__send_job(0, 'get_words', 'words', [amount, ['src_language', 'dst_language', 'EZ_factor']])
+        self.__send_job(0, 'get_words', 'words', [amount, ['src_language', 'dst_language', 'EZ_factor', 'interval',
+                                                           'repetitions']])
         return self.__get_resp()
 
     def fetch_dummy(self, amount):
