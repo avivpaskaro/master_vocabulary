@@ -1,0 +1,268 @@
+<MyMainApp>
+    GridLayout:
+        cols:1
+        size: root.width, root.height
+        GridLayout:
+            cols:1
+
+            Label:
+                text: "Welcome to Tongue-master!!"
+                font_size: 24
+
+            Label:
+                text: "Get ready to learn a new language"
+                font_size: 24
+
+            Label:
+
+        GridLayout:
+            cols: 3
+            Label:
+
+            Button:
+                id: "learn_btn"
+                text: "Learn"
+                on_release:
+                    # root.manager.screens[1].word_list = root.word_list
+                    root.manager.transition.direction = 'left'
+                    root.manager.current = 'learn_open'
+
+            Label:
+
+<MyLearnScreen>
+
+    b1:b1
+    b2:b2
+    b3:b3
+    counter:counter
+    kv_state:kv_state
+    src_word:src_word
+    dst_word:dst_word
+    on_pre_enter: root.reset_screen()
+
+    GridLayout:
+        cols:1
+        size: root.width, root.height
+        GridLayout:
+            cols:1
+            size_hint: 1, 0.3
+
+        GridLayout:
+            size_hint: 1, 0.7
+            pos_hint: {"top": 0}
+            cols: 5
+            rows: 2
+            Label:
+            Label:
+            Button:
+                id: b2
+                size_hint: 0.3, 0.9
+                background_normal: '../star_y.png' if root.state >= 2 else '../star_g.png'
+                background_down: '../star_y_p.png' if root.state >= 2 else '../star_g_p.png'
+                on_press:root.star_btn(2)
+            Label:
+            Label:
+
+            Label:
+            Button:
+                id: b1
+                size_hint: 0.3, 0.8
+                on_press:root.star_btn(1)
+                background_normal: '../star_y.png' if root.state >= 1 else '../star_g.png'
+                background_down: '../star_y_p.png' if root.state >= 1 else '../star_g_p.png'
+            Label:
+            Button:
+                id: b3
+                size_hint: 0.3, 0.7
+                on_press:root.star_btn(3)
+                background_normal: '../star_y.png' if root.state >= 3 else '../star_g.png'
+                background_down: '../star_y_p.png' if root.state >= 3 else '../star_g_p.png'
+            Label:
+
+        GridLayout:
+            cols: 4
+            rows: 4
+
+            Label:
+            Image:
+                size_hint: 0.2, 0.2
+                opacity: 0.9
+                source: '../italy.png'
+                allow_stretch: True
+
+            Label:
+                id: src_word
+                font_size: 24
+                text: root.word_list[root.word_idx][root.word_src_idx]
+                multiline:False
+            Label:
+
+            Label:
+            Image:
+                size_hint: 0.2, 0.2
+                opacity: 0.9
+                source: '../GB.png'
+                allow_stretch: True
+
+            Label:
+                id: dst_word
+                font_size: 24
+                text: root.word_list[root.word_idx][root.word_dst_idx]
+                multiline:False
+            Label:
+
+        GridLayout:
+            size_hint: 1, 0.3
+            cols: 6
+
+            Label:
+
+            Button:
+                size_hint: 1, 0.5
+                text:"Back"
+                font_size: 20
+                on_press:root.nxt_btn(-1)
+
+            Label:
+            Label:
+
+            Button:
+                size_hint: 1, 0.5
+                text:"Next"
+                font_size: 20
+                on_press:root.nxt_btn(1)
+
+            Label:
+
+        Label:
+            id: kv_state
+            text: str(root.state)
+            multiline:False
+
+        Label:
+            id: counter
+            text:"0"
+            multiline:False
+
+<MyLearnScreenDone>
+    GridLayout:
+        cols: 1
+        Label:
+        GridLayout:
+            cols: 3
+            Label:
+            Button:
+                text: "Lets test"
+                on_release:
+                    root.manager.transition.direction = 'left'
+                    root.manager.current = 'test'
+            Label:
+        Label:
+
+<MyLearnScreenOpen>
+    GridLayout:
+        cols: 1
+        Label:
+
+        Label:
+            text: "Chose amount of words to learn:"
+
+        Label:
+
+        GridLayout:
+            cols: 3
+            Button:
+                text: "5"
+                on_release:
+                    root.manager.screens[1].max_num_words = 5
+                    root.manager.transition.direction = 'left'
+                    root.manager.current = 'learn'
+            Button:
+                text: "10"
+                on_release:
+                    root.manager.screens[1].max_num_words = 10
+                    root.manager.transition.direction = 'left'
+                    root.manager.current = 'learn'
+            Button:
+                text: "15"
+                on_release:
+                    root.manager.screens[1].max_num_words = 15
+                    root.manager.transition.direction = 'left'
+                    root.manager.current = 'learn'
+        Label:
+
+<MyTestScreen>
+    src_word:src_word
+    ans_1:ans_1
+    ans_2:ans_2
+    ans_3:ans_3
+    ans_4:ans_4
+
+
+    on_pre_enter: root.reset_screen()
+
+    GridLayout:
+        cols: 1
+
+        Label:
+
+        GridLayout:
+            cols: 3
+            Label:
+            Label:
+                id: src_word
+                text: "N/A"
+            Label:
+
+        Label:
+
+        GridLayout:
+            cols: 2
+            ToggleButton:
+                id: ans_1
+                text: "N/A"
+                group: 'g1'
+                on_press:root.btn_click(1)
+            ToggleButton:
+                id: ans_2
+                text: "N/A"
+                group: 'g1'
+                on_press:root.btn_click(2)
+            ToggleButton:
+                id: ans_3
+                text: "N/A"
+                group: 'g1'
+                on_press:root.btn_click(3)
+            ToggleButton:
+                id: ans_4
+                text: "N/A"
+                group: 'g1'
+                on_press:root.btn_click(4)
+
+
+
+<MyTestScreenDone>
+    GridLayout:
+        cols: 1
+        Label:
+        GridLayout:
+            cols: 3
+            Label:
+            Button:
+                text: "Back"
+                on_release:
+                    root.manager.transition.direction = 'right'
+                    root.manager.current = 'main'
+            Label:
+        Label:
+
+<MyTestPopUp>:
+    Label:
+        text: "You were right!!"
+        size_hint: 0.6, 0.2
+        pos_hint: {"x":0.2, "top":1}
+
+    Button:
+        text: "Close the popup"
+        size_hint: 1, 0.4
+        pos_hint: {"x":0, "y":0.1}
