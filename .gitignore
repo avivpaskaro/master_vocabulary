@@ -1,4 +1,4 @@
-
 db/tonguemaster.db
 venv
 .idea
+tonguemaster/__pycache__
