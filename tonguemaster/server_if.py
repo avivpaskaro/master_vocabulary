@@ -61,6 +61,32 @@ class ServerIf:
             params = [word[1], str(today + timedelta(days=word[2])), word[2], word[3], word[0]]
             self.__send_job(0, 'update_word', 'words', [update_col, rules_col, params])
 
+    def insert_mp3_fname(self, word_list):
+        """
+
+        :param word_list: every tuple contain: (word in src-lan, mp3 file name)
+        :return: void
+        """
+
+        for word in word_list:
+            update_col = ['mp3_file_name']
+            rules_col = ['src_language']
+            params = [word[1], word[0]]
+            self.__send_job(0, 'update_word', 'words', [update_col, rules_col, params])
+
+    def set_word_invalid(self, word_list):
+        """
+
+        :param word_list: list of source language words
+        :return: void
+        """
+
+        for word in word_list:
+            update_col = ['valid']
+            rules_col = ['src_language']
+            params = [0, word]
+            self.__send_job(0, 'update_word', 'words', [update_col, rules_col, params])
+
     def fetch_entries(self):
         """
 
@@ -75,10 +101,10 @@ class ServerIf:
 
         :param amount: number of requested words
         :return: list of tuples when every tuple contain: (word in src-lan, word in dst-lan, EZ factor,
-                                                          interval (days), repetitions)
+                                                          interval (days), repetitions, mp3 file name)
         """
         self.__send_job(0, 'get_words', 'words', [amount, ['src_language', 'dst_language', 'EZ_factor', 'interval',
-                                                           'repetitions']])
+                                                           'repetitions', 'mp3_file_name']])
         return self.__get_resp()
 
     def fetch_dummy(self, amount):

@@ -1,7 +1,6 @@
 import os
 from tonguemaster.add_word import AddWord
 from tonguemaster.study import Study
-import numpy as np
 from threading import Event
 from tonguemaster.server_if import ServerIf
 
@@ -44,13 +43,14 @@ def main():
             event = Event()
             t = AddWord(dictionary=DICTIONARY, event=event, server=server_if)
             t.start()
+            t.join()
             event.wait()
         elif next_action == STUDY:
             t = Study(dictionary=DICTIONARY, server=server_if)
             t.start()
             t.join()
         elif next_action == DICT:
-            print(np.array(server_if.fetch_entries()))
+            print(server_if.fetch_entries())
         elif next_action == EXIT:
             print('{Menu} Bye!')
             server_if.stop_servers()

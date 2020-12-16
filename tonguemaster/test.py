@@ -67,8 +67,8 @@ class Test(threading.Thread):
         """
         dummy_answers = ServerIf.fetch_dummy(self.server, 50)
         for word_tuple in self.words_lst:
-            word, translate, easy_factor, interval, repetitions = word_tuple
-            print(f'\nword tuple: {word_tuple}')
+            word, translate, easy_factor, interval, repetitions, mp3_fname = word_tuple
+            #print(f'\nword tuple: {word_tuple}')
             answers = self.rand_answers(translate,
                                         list(set(dummy_answers.copy())))
             start_time = time.time()

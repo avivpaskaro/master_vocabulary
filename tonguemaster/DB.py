@@ -41,7 +41,9 @@ class MyDB:
                                             next_date text,
                                             priority integer DEFAULT 2,
                                             interval integer DEFAULT 0,
-                                            repetitions integer DEFAULT 1
+                                            repetitions integer DEFAULT 1,
+                                            mp3_file_name text,
+                                            valid integer DEFAULT 1
                                         ); """
         try:
             self.cursor.execute(sql_create_projects_table)
@@ -131,13 +133,13 @@ class MyDB:
     def get_words(self, table, amount, cols):
         curr_date = str(date.today())
         cols_str = ', '.join(cols) if len(cols) > 1 else cols[0]
-        sql_get = f""" SELECT {cols_str} FROM {table} WHERE next_date BETWEEN '1970-01-01' AND '{curr_date}' 
+        sql_get = f""" SELECT {cols_str} FROM {table} WHERE (valid=1) AND (next_date BETWEEN '1970-01-01' AND '{curr_date}') 
                        ORDER BY next_date DESC, priority DESC LIMIT ?"""
         self.cursor.execute(sql_get, [amount])
         self.conn.commit()
         rows = self.cursor.fetchall()
         if len(rows) < amount:
-            sql_get = f""" SELECT {cols_str} FROM {table} WHERE next_date IS NULL  
+            sql_get = f""" SELECT {cols_str} FROM {table} WHERE (valid=1) AND (next_date IS NULL)  
                             ORDER BY priority DESC LIMIT ?"""
             self.cursor.execute(sql_get, [amount - len(rows)])
             # self.conn.commit()

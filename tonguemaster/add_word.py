@@ -1,10 +1,13 @@
 import time
+import uuid
 from queue import Queue
 import os
 from googletrans import Translator
 from gtts import gTTS
 import threading
 from tonguemaster.server_if import ServerIf
+
+EN_DOWNLOAD_MP3 = False
 
 
 class DownloadMP3(threading.Thread):
@@ -34,9 +37,11 @@ class DownloadMP3(threading.Thread):
         if not os.path.isdir(f'../vocals/{self.lng}'):
             os.mkdir(f'../vocals/{self.lng}')
         try:
-            tts = gTTS(self.word, lang=self.lng)
-            tts.save(f'../vocals/{self.lng}/{self.word}.mp3')
-            self.download_q.put(self.word)
+            fname = self.lng + uuid.uuid4().hex
+            if EN_DOWNLOAD_MP3:
+                tts = gTTS(self.word, lang=self.lng)
+                tts.save(f'../vocals/{self.lng}/{fname}.mp3')
+            self.download_q.put((self.word, fname))
         except Exception as exp:
             pass
 
@@ -67,7 +72,7 @@ class Translate(threading.Thread):
         translator = Translator()
         try:
             translation = translator.translate(self.word, src=self.src_lng, dest=self.dst_lng).text
-            self.translate_q.put((self.word, translation))
+            self.translate_q.put([self.word, translation])
         except Exception as exp:
             pass
 
@@ -119,14 +124,20 @@ class AddWord(threading.Thread):
 
         :return: none
         """
-        file_path = input(f'{{{self.name}}} Please enter your file name:\n{{{self.name}}} ')
-        words_lst = self.read_file(file_path)
+
         self.event.set()
 
-        # word translate threads
-        it = 0
-        new_words = []
-        while True:  # Until succeed
+        # todo - commented until the lib will be fixed
+        ''' 
+            file_path = input(f'{{{self.name}}} Please enter your file name:\n{{{self.name}}} ')
+            words_lst = self.read_file(file_path)
+            
+    
+            # word translate threads
+            it = 0
+            new_words = []
+        
+            while True:  # Until succeed
             mismatches = ServerIf.are_exist(self.server, words_lst)  # the words that are still not in dictionary
             if it == 0:
                 new_words = mismatches  # save the first iteration mismatch list to future use in mp3 threads
@@ -142,12 +153,37 @@ class AddWord(threading.Thread):
             while not self.RESULTS_QUEUE.empty():  # insert results to dictionary
                 ServerIf.insert(self.server, [self.RESULTS_QUEUE.get()])
             it += 1
+        '''
+        tmp_words_list = [('comprare', 'buy'),
+                          ('able potere', 'can/be'),
+                          ('cancellare', 'cancel'),
+                          ('cambiare', 'change'),
+                          ('pulire', 'clean'),
+                          ('pettinare', 'comb'),
+                          ('lamentarsi', 'complain'),
+                          ('tossire', 'cough'),
+                          ('contare', 'count'),
+                          ('tagliare', 'cut'),
+                          ('ballare', 'dance'),
+                          ('disegnare', 'draw'),
+                          ('bere', 'drink'),
+                          ('guidare', 'drive'),
+                          ('mangiare', 'eat'),
+                          ('spiegare', 'explain'),
+                          ('cadere', 'fall'),
+                          ('rempire', 'fill'),
+                          ('trovare', 'find'),
+                          ('finire', 'finish')]
+
+        ServerIf.insert(self.server, tmp_words_list)  # todo changes back to original word list
 
         # mp3 vocals download threads
-        download_fail = new_words
+        download_fail = [x[0] for x in tmp_words_list]  # todo changes back to original word list
+        download_successful = []
         while True:  # Until succeed
             if not download_fail:
-                break  # each iteration mismatch list is shrinking, and when its empty we finish job
+                ServerIf.insert_mp3_fname(self.server, download_successful)
+                break  # Each iteration mismatch list shrinks and when its empty we finish job
             threads = []
             for word in download_fail:  # Create threads workers
                 t = DownloadMP3(word=word, lng='it', download_q=self.RESULTS_QUEUE)
@@ -155,9 +191,8 @@ class AddWord(threading.Thread):
                 t.start()
             for t in threads:  # wait for threads to finish
                 t.join()
-            download_successful = []
             while not self.RESULTS_QUEUE.empty():  # insert results to dictionary
                 download_successful.append(self.RESULTS_QUEUE.get())
-                # calculate the words that still not successfully downloaded
-                download_fail = [x for x in download_fail if x not in download_successful]
+            # unsuccessfully downloaded
+            download_fail = [x for x in download_fail if x not in [y[0] for y in download_successful]]
         time.sleep(2)

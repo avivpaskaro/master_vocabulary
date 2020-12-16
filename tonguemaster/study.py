@@ -45,13 +45,19 @@ class Study(threading.Thread):
 
         # study session
         words_lst = ServerIf.fetch_words(self.server, words_quantity)
+        remove_lst = []
         for words_tuple in words_lst:
-            (words, answer, _, _, _) = words_tuple
-            print(f'{words}')
-            time.sleep(1.5)
+            (word, answer, _, _, _, sound) = words_tuple
+            print(f'{word}')
+            #time.sleep(1.5)
             print(f'{answer}')
-            time.sleep(1)
-            input('\nPress Enter for next word\n')
+            #time.sleep(1)
+            if input('\nIncorrect translate? If so, press 0\nOtherwise press Enter for next word\n') == '0':
+                ServerIf.set_word_invalid(self.server, [word])
+                remove_lst.append(words_tuple)
+
+        for elem in remove_lst:
+            words_lst.remove(elem)
 
         # invoke test thread
         t = Test(words_lst, self.server)
